@@ -6,26 +6,44 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        .form{display: flex;}
-    </style>
+    <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}">
     <title>Test-task</title>
 </head>
 <body>
-    <div>
-    <form method="post" class="form">
+    <div class="container">
+    <iframe name="dummyframe" id="dummyframe" style="display: none;"></iframe>
+    <form id="form" method="post" class="form" action="/api/text-form/" target="dummyframe">
         {% csrf_token %}
-        <input type="text" placeholder="title" required/>
-        <select required>
+        <input type="text_name" name="text_name" placeholder="title" required/>
+        <select id="text_category" name="text_category" required>
             {% for category in categories %}
-                <option value="{{ category.id }}">{{category.title}}</option>
+                <option value="{{ category.pk }}">{{category.title}}</option>
             {% endfor %}
         </select>
-        <textarea id="text" type="text" placeholder="text" required></textarea>
-        <input type="submit">Submit</input>
+        <textarea id="text_content" name="text_content" type="text_content" placeholder="text" required></textarea>
+        <button type="button" onclick="submitform()">Submit</button>
         </form>
-        <p>Количество символов: <span id="char-count">0</span>
+        <p>Количество символов: <span id="char_count">0</span>
     </div>
-    <script src="{% static 'form.js' %}"></script>
+    <script>
+        const charCount = document.getElementById('char_count')
+        const textContent = document.getElementById('text_content')
+
+        textContent.addEventListener('input', () => {
+            charCount.textContent = textContent.value.length
+        })
+        const submitform = async (event) => {
+            event?.preventDefault();
+            const saveForm = document.getElementById('form')
+            const form = new FormData(saveForm)
+            const response = await fetch('/api/text-form/', {
+                method: 'POST',
+                body: form
+            })
+            const data = await response.json()
+            saveForm.submit()
+            saveForm.reset()
+        }
+    </script>
 </body>
 </html>
